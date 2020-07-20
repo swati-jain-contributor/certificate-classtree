@@ -1,0 +1,130 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# https://www.nginx.com/resources/wiki/start/
+# https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
+# https://wiki.debian.org/Nginx/DirectoryStructure
+#
+# In most cases, administrators will remove this file from sites-enabled/ and
+# leave it as reference inside of sites-available where it will continue to be
+# updated by the nginx packaging team.
+#
+# This file will automatically load configuration files provided by other
+# applications, such as Drupal or Wordpress. These applications will be made
+# available underneath a path with that package name, such as /drupal8.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+# Default server configuration
+#
+server{
+	ssl on;
+        ssl_certificate     /etc/letsencrypt/live/classtree.in-0001/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/classtree.in-0001/privkey.pem;
+#	include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+	listen 443 ssl ;
+         listen [::]:443 ssl ;
+
+	server_name api.classtree.in;
+        error_page 404 =200 /index.html;
+	location /api/classes{
+		proxy_pass http://localhost:3000/api/classes;	
+	}
+	location /api/video{
+		proxy_pass http://localhost:3000/api/video;
+        }
+	location /api/notification{
+                proxy_pass http://localhost:3000/api/notification;
+        }
+	location /api/contact{
+	       proxy_pass http://localhost:3000/api/contact;
+	}
+	 location /{
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Host $host;
+                proxy_pass http://localhost:5443;
+		proxy_redirect off;
+        }
+}
+server {
+	ssl on;
+	ssl_certificate     /etc/letsencrypt/live/classtree.in-0001/fullchain.pem;
+    	ssl_certificate_key /etc/letsencrypt/live/classtree.in-0001/privkey.pem;
+#	include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+	# SSL configuration
+	#
+	 listen 443 ssl ;
+	 listen [::]:443 ssl ;
+
+	server_name www.classtree.in classtree.in;
+	error_page 404 =200 /index.html;
+        
+	location / {
+                root /root/class-tree-pord-ui;
+                index index.html;
+		try_files $uri /index.html;
+		
+        }
+}
+
+server {
+        ssl on;
+        ssl_certificate     /etc/letsencrypt/live/bakeminds.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/bakeminds.com/privkey.pem;
+#       include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+        # SSL configuration
+        #
+         listen 443 ssl ;
+         listen [::]:443 ssl ;
+
+        server_name www.bakeminds.com  bakeminds.com;
+        error_page 404 =200 /index.html;
+
+        location / {
+                root /root/class-tree-pord-ui;
+                index index.html;
+                try_files $uri /index.html;
+
+        }
+}
+
+server{
+	listen 80;
+        listen [::]:80;
+
+        server_name test.classtree.in;
+	location / {
+                root /root/test/class-tree-pord-ui;
+                index index.html;
+                try_files $uri /index.html;
+
+        }
+
+}
+# Virtual Host configuration for example.com
+#
+# You can move that to a different file under sites-available/ and symlink that
+# to sites-enabled/ to enable it.
+#
+server {
+	listen 80;
+	listen [::]:80;
+
+	server_name classtree.in www.classtree.in;
+	return 301 https://classtree.in$request_uri;
+	
+}
+
+server {
+        listen 80;
+        listen [::]:80;
+
+        server_name bakeminds.com  www.bakeminds.com;
+        return 301 https://bakeminds.com$request_uri;
+        
+}
+
+
